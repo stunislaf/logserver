@@ -12,6 +12,8 @@ namespace LogServer.Store
 
 		Task<App> GetAppByKey(string key);
 
+		Task<List<App>> Apps();
+
 		Task<App> AddApp(string desc);
 
 		Task<(string token, Exception error)> GenerateAppKey(string appId);

@@ -50,6 +50,12 @@ namespace LogServer.Rest.Api
 			await c.Response.WriteJson(events);
 		}
 
+		public async Task Apps(HttpContext c)
+		{
+			var apps = await _store.Apps();
+			await c.Response.WriteJson(apps);
+		}
+
 		public async Task AddApp(HttpContext c)
 		{
 			var (app, error) = await c.Request.BodyTo<App>();

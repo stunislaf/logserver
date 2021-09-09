@@ -35,6 +35,11 @@ namespace LogServer.Store
 			var filter = Builders<App>.Filter.Eq(u => u.AppKey, key);
 			return await _apps.Find(filter).FirstOrDefaultAsync();
 		}
+		public async Task<List<App>> Apps()
+		{
+			var filter = Builders<App>.Filter.Empty;
+			return await _apps.Find(filter).ToListAsync();
+		}
 
 		public async Task<App> AddApp(string desc)
 		{

@@ -34,11 +34,13 @@ namespace LogServer.Rest.Api
 
 			e.MapGet("/admin/events", c => AuthAdmin(c, _adminRest.Events));
 
+			e.MapGet("/admin/apps", c => AuthAdmin(c, _adminRest.Apps));
+			
 			e.MapPost("/admin/apps", c => AuthAdmin(c, _adminRest.AddApp));
 
 			e.MapPost("/admin/apps/update-key", c => AuthAdmin(c, _adminRest.GenerateAppKey));
 
-			e.MapPost("/admin/apps/switch", c => AuthAdmin(c, _adminRest.SwitchAppBlock));
+			e.MapPost("/admin/apps/blocked/switch", c => AuthAdmin(c, _adminRest.SwitchAppBlock));
 		}
 
 		private Task AuthAdmin(HttpContext c, RequestDelegate rd)
