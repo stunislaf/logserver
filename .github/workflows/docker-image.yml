@@ -1,0 +1,59 @@
+name: Docker
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+
+      - name: build and deploy master image to ghcr.io
+        if: ${{ github.ref == 'refs/heads/master' }}
+        env:
+          GITHUB_PACKAGE_TOKEN: ${{ secrets.PKG_TOKEN }}
+          USERNAME: ${{ github.actor }}
+        run: |
+          echo ${GITHUB_PACKAGE_TOKEN} | docker login ghcr.io -u ${USERNAME} --password-stdin
+          docker buildx build --push --platform linux/amd64,linux/arm/v7,linux/arm64 \
+              -t ghcr.io/${USERNAME}/logserver:master -t ghcr.io/${USERNAME}/logserver:latest \
+              backend/Dockerfile
+
+      - name: build and deploy tag image to ghcr.io
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        env:
+          GITHUB_PACKAGE_TOKEN: ${{ secrets.PKG_TOKEN }}
+          USERNAME: ${{ github.actor }}
+          GITHUB_REF: ${{ github.ref}}
+        run: |
+          ref="$(echo ${GITHUB_REF} | cut -d'/' -f3)"
+          echo GITHUB_REF - $ref
+          echo ${GITHUB_PACKAGE_TOKEN} | docker login ghcr.io -u ${USERNAME} --password-stdin
+          docker buildx build --push --platform linux/amd64,linux/arm/v7,linux/arm64 \
+              -t ghcr.io/${USERNAME}/logserver:${ref} -t ghcr.io/${USERNAME}/logserver:latest \
+              backend/Dockerfile
