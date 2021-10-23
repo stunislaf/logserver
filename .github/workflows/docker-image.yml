@@ -40,6 +40,8 @@ jobs:
           USERNAME: ${{ github.actor }}
         run: |
           echo ${GITHUB_PACKAGE_TOKEN} | docker login ghcr.io -u ${USERNAME} --password-stdin
+          ls -l .
+          ls -l backend
           docker buildx build --push --platform linux/amd64,linux/arm/v7,linux/arm64 \
               -t ghcr.io/${USERNAME}/logserver:master -t ghcr.io/${USERNAME}/logserver:latest \
               backend/Dockerfile
